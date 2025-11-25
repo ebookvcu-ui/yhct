@@ -1,0 +1,1337 @@
+<!doctype html>
+<html lang="vi">
+<head><link rel="manifest" href="manifest.json">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>🌿 Tra cứu Đông Y — Chẩn Đoán Nhanh gợi ý nhanh Gốc Bệnh </title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap&subset=vietnamese" rel="stylesheet">
+  <script src="data.js"></script>
+  <script src="chandoan.js"></script>
+  <style>
+    :root{--bg:#f5f7fb;--card:#fff;--accent:#0f58d6;--muted:#556172;--shadow:rgba(0,0,0,0.08)}
+    *{box-sizing:border-box;font-family:"Inter", "Noto Sans", system-ui, sans-serif}
+    body{margin:0;background:linear-gradient(180deg,#eef3ff 0%,var(--bg) 100%);color:#0b1220}
+    .wrap{max-width:1200px;margin:18px auto;padding:16px}
+    header{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+    .logo{font-size:28px}
+    h1{font-size:20px;margin:0}
+    .lead{color:var(--muted);font-size:13px;margin:0}
+    .layout{display:flex;gap:16px}
+    .sidebar{
+  width:320px;
+  background:#fff;
+  padding:12px;
+  border-radius:12px;
+  box-shadow:0 6px 16px rgba(0,0,0,0.08);
+  max-height:100vh;
+  overflow-y:auto;
+  overflow-x:hidden;
+}
+
+.children{
+  max-height:0;
+  overflow:hidden;
+  transition:max-height .28s ease;
+}
+
+.children.open{
+  max-height:2000px; /* đủ lớn cho mọi trường hợp */
+}
+.content{flex:1;background:var(--card);padding:16px;border-radius:12px;box-shadow:0 6px 16px var(--shadow);min-height:60vh;overflow:auto}
+    .sidebar, .content {
+	-webkit-overflow-scrolling: touch;
+	}
+	.content {
+	overflow: visible !important;
+	}
+	.searchbox {
+	  width:100%;
+	  padding:8px;
+	  border-radius:8px;
+	  border:1px solid #e6edf3;
+	  font-size:14px; /* Ngăn trình duyệt phóng to khi focus */
+	}
+	input, textarea {
+	font-size:16px !important;
+	}
+
+ .muted{color:var(--muted)}
+    /* Tree */
+    .tree{margin:6px 0}
+    .node{display:block;padding:8px;border-radius:8px;color:#0b1220;cursor:pointer;text-decoration:none;border:1px solid transparent}
+    .node:hover{background:#eef6ff;border-color:rgba(37,99,235,0.12)}
+    .folder{display:flex;align-items:center;justify-content:space-between;gap:8px}
+    .folder .label{display:flex;align-items:center;gap:6px;font-weight:600}
+    .caret{transition:transform .18s ease;display:inline-block}
+    .folder[aria-expanded="true"] .caret{transform:rotate(90deg)}
+    .children { margin-left: 8px; border-left: 2px dashed #e9efff; padding-left: 8px; max-height: 0; overflow: hidden; transition: max-height 0.28s ease;}
+	.child{display:block;padding:8px;border-radius:8px;border:1px solid transparent}
+    .child:hover{background:#f5f9ff;border-color:#e6efff}
+	.child { text-decoration: none;}
+	.child a {text-decoration: none;}
+
+    /* Cards */
+    .subtypes{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:12px}
+    .card-type{background:#fff;padding:12px;border-radius:10px;border:1px solid #eef4ff;min-height:120px;position:relative;box-shadow:0 6px 14px var(--shadow)}
+    .card-type h4{margin:0;font-size:15px;color:#0b1220}
+    .card-type p{margin:6px 0;color:var(--muted);font-size:13px}
+    .chip{display:inline-block;background:#eef6ff;color:var(--accent);border:1px solid rgba(37,99,235,0.12);padding:2px 8px;border-radius:999px;font-size:12px;margin-left:6px}
+    .secondary{background:#eef6ff;color:var(--accent);border:1px solid rgba(37,99,235,0.12);padding:8px 10px;border-radius:8px;cursor:pointer}
+    button.btn{background:var(--accent);color:#fff;padding:8px 10px;border:0;border-radius:8px;cursor:pointer}
+    /* Tooltip */
+    .field-tooltip{position:fixed;z-index:99999;background:#0b1220;color:#fff;padding:8px 10px;border-radius:8px;font-size:13px;box-shadow:0 8px 24px rgba(2,6,23,0.4);pointer-events:none;opacity:0;transform:translateY(6px);transition:opacity .12s,transform .12s;max-width:min(520px,92vw);line-height:1.4}
+    .field-tooltip.show{opacity:0.98;transform:translateY(0)}
+    /* Modal */
+    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(2,6,23,0.45);z-index:2000;padding:20px}
+    .modal.open{display:flex}
+    .modal-card{background:#fff;width:100%;max-width:780px;border-radius:12px;padding:18px;box-shadow:0 10px 30px rgba(2,6,23,0.2);max-height:82vh;overflow:auto}
+    .modal-card h3{margin:0 0 6px 0}
+    .modal-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+    .close{background:#eee;border:0;padding:6px 10px;border-radius:8px;cursor:pointer}
+    .list{margin:6px 0 0 0;padding-left:18px}
+    @media (max-width:900px){ .layout{flex-direction:column} .sidebar{width:100%;height:auto} }
+	
+	#totalSubtypes {
+  background: #eef6ff;
+  border: 1px solid #dde7fb;
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-bottom: 8px;
+  color: #0f58d6;
+  text-align: center;
+}
+.chip.clickable-disease:hover {
+  background: #dfe9ff;
+  color: #0f58d6;
+  border-color: #bcd0ff;
+  transition: 0.2s;
+}
+/* Tooltip nâng cấp v2 */
+.btn-tooltip-wrap {
+  position: relative;
+  display: inline-block;
+}
+
+/* Tooltip box */
+.btn-tooltip {
+  position: absolute;
+  top: 120%;  /* nằm dưới nút */
+  left: 50%;
+  transform: translateX(-50%) scale(0.95);
+  background: #f0f2f7; /* xám dịu theo tone trang */
+  color: #333;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  line-height: 1.4;
+  min-width: 250px;  /* chiều ngang tối thiểu */
+  max-width: 380px;  /* tối đa để không bị quá dài ở mobile */
+  text-align: center;
+  white-space: normal; /* tự xuống dòng nếu dài */
+  opacity: 0;
+  pointer-events: none;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+  z-index: 10000;
+  transition: opacity .25s ease, transform .25s ease;
+}
+
+/* Hiệu ứng mờ dần + nổi */
+.btn-tooltip.show {
+  opacity: 1;
+  transform: translateX(-50%) scale(1);
+}
+
+/* Mũi tên chỉ lên */
+.btn-tooltip::after {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  margin-left: -6px;
+  border-width: 6px;
+  border-style: solid;
+  border-color: transparent transparent #f0f2f7 transparent;
+}
+
+.chip-kw { display:inline-block; background:#eef2ff; color:#0f58d6;
+  border:1px solid rgba(37,99,235,0.12); border-radius:999px; padding:2px 8px;
+  font-size:12px; margin-right:6px; }
+
+.sym-tip {
+  border-bottom: 1px dotted #888;
+  cursor: help;
+  position: relative;
+}
+.sym-tip:hover::after {
+  content: attr(data-tip);
+  position: absolute;
+  left: 50%;
+  bottom: 120%;
+  transform: translateX(-50%);
+  background: #f1f3f7;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  white-space: nowrap;
+  color: #333;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+  z-index: 9999;
+}
+
+.icon-tag {
+  display: inline-block;
+  background: #f7f2e9;
+  padding: 4px 6px;
+  margin: 2px;
+  border-radius: 6px;
+  font-size: 14px;
+  border: 1px solid #e0d7c5;
+}
+.icon-tag .hint {
+  color: #725c3a;
+  font-style: italic;
+}
+* {
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+}
+.list li {
+  page-break-inside: avoid;
+}
+.modal-card {
+  page-break-inside: avoid;
+}
+@media (max-width: 900px) {
+  .layout {
+    flex-direction: column;
+  }
+  .sidebar {
+    width: 100% !important;
+    overflow: visible !important;
+    max-height: none !important;
+    margin-bottom: 12px;
+  }
+  #dxPanel {
+    margin-top: 12px !important;
+    padding: 12px !important;
+    font-size: 15px !important;
+  }
+  #dxBaGang .chip {
+    font-size: 14px !important;
+    padding: 4px 10px !important;
+    margin-bottom: 6px;
+  }
+  #dxChatContent {
+    font-size: 15px !important;
+    line-height: 1.6;
+  }
+  /* Tooltip điều chỉnh trên mobile */
+  #dxTip {
+    max-width: 90vw !important;
+    left: 8px !important;
+    right: 8px !important;
+    white-space: normal !important;
+  }
+}
+/* ================================
+   CHẶN BÔI ĐEN TRONG NỘI DUNG BÀI VIẾT
+   ================================ */
+
+.content, 
+.content *:not(input):not(textarea):not(button),
+#modalBody, 
+#modalBody * {
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+}
+  </style>
+  
+
+<style>
+/* right-click toast */
+#rcToast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:rgba(11,17,32,0.9);color:#fff;padding:8px 12px;border-radius:8px;font-size:13px;z-index:99999;opacity:0;transition:opacity .18s;pointer-events:none}
+#rcToast.show{opacity:0.95}
+</style>
+
+</head>
+<body>
+<div id="rcToast" aria-hidden="true">⚠️ Nội dung trang được bảo vệ — Vui lòng sử dụng tính năng In hoặc lưu PDF.</div>
+  <div class="wrap">
+    <header>
+      <div class="logo">🌿</div>
+      <div>
+        <h1>Tra cứu Đông Y </h1>
+        <p class="lead">Lãn Ông Bí Pháp - "Kỉ Niệm 300 Năm Ngày Sinh Hải Thượng Lãn Ông 27-12-1724 | 27-12-2025"</p>
+      </div>
+	   
+    </header>
+	<div class="group">
+          <h3> </h3>
+          <input id="globalSearch" class="searchbox" placeholder="🔍 Tìm Kiếm (vd: Bổ Tâm, An Huyết, Bình Khí Đan có thể lựa chọn từ khóa gợi ý giúp chẩn đoán nhanh)">
+		  <div id="dxKeywordSuggest" style="margin-top:6px; display:flex; flex-wrap:wrap; gap:6px;"></div>
+          <p class="muted" style="font-size:12px;margin:6px 0 0"> </p>
+        </div>
+<script>
+function slugify(str){
+  return (str||'')
+    .toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'') // bỏ dấu tiếng Việt
+    .replace(/[^a-z0-9]+/g,'-') // thay ký tự đặc biệt thành -
+    .replace(/^-+|-+$/g,'') // bỏ dấu - dư ở đầu/cuối
+    .trim();
+}
+</script>
+
+		
+    <div class="layout">
+	    <main class="content">
+        <div id="mainIntro">
+          <h1>Chọn bệnh ở danh mục hoặc Tìm kiếm</h1>
+		  </br>
+		  <p class="lead"> </p>
+          <p class="lead">1. Thẻ thể bệnh hiển thị <b>triệu chứng rút gọn</b>. Chạm/hover vào nhãn <b>Pháp trị</b> để xem nhanh. Tìm kiếm hỗ trợ <b>bỏ dấu</b> và <b>so khớp gần đúng</b>.Tính năng in và lưu lại <b> bài thuốc </b> giúp bạn có thể <b> sử dụng bất kỳ lúc nào</b>.</p>
+		  </br>
+          <p class="lead">2. Vui lòng tham khảo ý kiến của những <b> Bác Sĩ Đông Y Giàu kinh nghiệm </b> hoặc <b> Các cơ sở Khám Chữa Bệnh Uy Tín </b> trước khi sử dụng.</p>
+		  </br>
+		  <p class="lead">3. Việc chia sẻ các bài thuốc Cổ Phương Kinh Điển hoàn toàn <b> Miễn Phí </b> nhằm phục vụ lợi ích chung của Cộng Đồng đam mê nghiên cứu Y Học Cổ Truyền Việt Nam.</p>
+		  </br>
+		  <p class="lead">4. Chúng tôi không chịu <b> bất cứ trách nhiệm nào </b> khi người dùng tự ý áp dụng </p>
+		  </br>
+		  <p class="lead">5. Cảm ơn các bạn đã quan tâm. Hãy cùng nhau chia sẻ và lan tỏa những giá trị tốt đẹp của YHCT để nền y học cổ truyền Việt Nam ngày càng Phát Triển. </p>
+		   </br>
+		  <p class="lead">6. Website:LanOngBiPhap.com  </p>
+		  <p class="lead">TikTok | YouTube: Lãn Ông Bí Pháp </p>
+		 
+		</div>
+        <div id="diseasePanel" style="display:none">
+          <h2 id="diseaseTitle"></h2>
+          <input id="filterSubtype" class="searchbox" placeholder="Lọc nhanh trong bệnh đang xem (tiêu đề/triệu chứng/pháp trị)..." style="margin-top:10px"/>
+          <div id="subtypes" class="subtypes"></div>
+        </div>
+      </main>
+      <aside class="sidebar">
+       
+        <hr style="border:none;border-top:1px solid #edf2fb;margin:12px 0">
+        <div class="group">
+          <h3></h3>
+          <div class="tree" id="tree">
+            <!-- Tree will be rendered here -->
+          </div> 
+		   <div id="dxPanel" style="display:none; margin-top:10px; border:1px solid #ddd; padding:10px; border-radius:6px; background:#fafafa;">
+		   <div id="dxBaGang" style="display:flex; flex-wrap:wrap; gap:6px;"></div>
+		   <div id="dxChat" style="display:none; margin-top:12px; padding:12px; border-radius:8px; background:#f7fff9; border:1px solid #a9e6c5;">
+		   <div id="dxChatContent" style="line-height:1.6; font-size:16px;"></div>
+		 </div>
+        </div>
+		</div>
+		
+      </aside>
+	
+    </div>
+	  
+  </div>
+		
+
+  <div id="modal" class="modal" aria-hidden="true">
+    <div class="modal-card" id="modalCard">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h3 id="modalTitle">Bài thuốc</h3>
+        <button class="close" id="modalClose" aria-label="Đóng">Đóng</button>
+      </div>
+      <div id="modalBody" style="margin-top:10px"></div>
+      <div class="modal-actions">
+        <button id="printThis" class="secondary">🖨 In bài này</button>
+        <button id="pdfThis" class="btn">📄 Lưu PDF bài này</button>
+      </div>
+	  </br>
+	  <p class="lead"><i>( * Thông tin chỉ mang tính tham khảo. Liên Hệ Thầy Thuốc Đông Y Uy Tín Trước Khi Sử Dụng )</i></p>
+		  
+    </div>
+  </div>
+
+  <div id="tooltip" class="field-tooltip" role="tooltip"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+<script>
+    // ====== DỮ LIỆU ======
+    // Bổ sung trường "note" (Lưu ý).
+	// 🔥 Bộ nhận diện thể bệnh (tự động thêm icon)
+
+
+function detectIcons(item){
+  const text = ((item.symptom || "") + " " + (item.note || "")).toLowerCase();
+  let out = "";
+  patternTags.forEach(p=>{
+    if(p.terms.some(t => text.includes(t))) out += " " + p.icon;
+  });
+  return out.trim();
+}
+function extractMarkers(title){
+  const m = title.match(/\((.*?)\)/);
+  if(!m) return [];
+  return m[1].split(/,|;/).map(s => s.trim().toLowerCase()).filter(Boolean);
+}
+function annotateSymptoms(item){
+  const markers = extractMarkers(item.title);
+  let html = item.symptom || "";
+  markers.forEach(m => {
+    html = html.replace(new RegExp(m, "gi"),
+      `<span class="sym-tip" data-tip="Triệu chứng chủ chốt của thể bệnh">${m}</span>`);
+  });
+  return html;
+}
+	// Catalog theo nhóm -> bệnh
+    const catalog = [
+		  { group:"🦴 Cơ Xương Khớp ", diseases:[
+			{ key:"daucovaigay", name:"🌿 Đau cổ vai gáy" },
+			{ key:"Thoai_hoa_dot_song_Co", name:"🌿 Thoái Hóa Đốt Sống Cổ" },
+			{ key:"daulung", name:"🌕 Đau Lưng" },
+			{ key:"thoatvidiadem", name:"🏋️‍ Thoát Vị Đĩa Đệm" },
+			{ key:"dauthankinhtoa", name:"😣‍ Đau thần kinh tọa" },
+			{ key:"Thoaihoakhopgoi", name:"🦵‍ Thoái Hóa Khớp Gối" },
+			{ key:"DauNhucXuongKHop", name:"🦶‍ Đau Nhức Xương Khớp" },
+			{ key:"ChanTaySungDau", name:"💪‍ Chân Tay Sưng Đau" },
+			{ key:"Tran_dich_khop_goi", name:"🦵‍ Tràn Dịch Khớp Gối" },
+			{ key:"Vien_khop_khuu_tay", name:"💢‍ Viêm Khớp Khuỷu Tay" },
+			{ key:"DauCoTay", name:"✋ Đau Cổ Tay" },
+			{ key:"loangxuong", name:"💢‍ Loãng Xương" },
+			{ key:"NUY_chung", name:"🍵 Bại Liệt Nuy Chứng" },
+			{ key:"Benh_Goutte", name:"⚙️ Bệnh Gút - Thống Phong" }
+		  ]},
+		  { group:"💖 Tâm thần & 💭 Thần Kinh", diseases:[
+			{ key:"matngu", name:"💤 Mất ngủ" },
+			{ key:"dau_dau", name:"😣 Đau Đầu" },
+			{ key:"DauDauMat", name:"😣 Đau Vùng Đầu Mặt" },
+			{ key:"TaibienMachmauNao", name:"🧠 Tai Biến Mạch Máu Não" },
+			{ key:"Roiloantiendinh", name:"💫 Rối Loạn Tiền Đình" },
+			{ key:"DauThanKinh_Lien_Suon", name:"⚡ Đau Thần Kinh Liên Sườn" }
+		  ]},
+		    { group:"🤧 Hô Hấp & 💖 Tim Mạch", diseases:[
+			{ key:"CamA", name:"🌬️ Cúm A - Ôn Dịch" },
+			{ key:"CamCumNghetMui", name:"🌬️ Cảm Cúm, Nghẹt Mũi" },
+			{ key:"ViemXoang_honghat", name:"🌬️ Viêm Xoang Họng Hạt" },
+			{ key:"Phoitacnghen", name:"🍬 Ho Khó Thở" },
+			{ key:"Viem_Amidan_1", name:"🍬 Viêm Amidan " },
+			{ key:"Viem_Phoi", name:"😷 Viêm Phổi" },
+			{ key:"Viem_phe_quan", name:"😷 Viêm Phế Quản" },
+			{ key:"TranDichMangPhoi", name:"🌬️ Tràn Dịch Màng Phổi" },
+			{ key:"Chung_Phe_Ung", name:"🦠 Áp Xe Phổi" },
+			{ key:"DauThatNguc", name:"😣️ Đau Thắt Ngực" },
+			{ key:"RoiLoanNhipTim_TimDapNhanh", name:"💖 Tim Đập Nhanh, Loạn Nhịp" },
+			{ key:"Tim_Dap_Nhanh", name:"💖 Tim Đập Nhanh" },
+			{ key:"Tim_Dap_Cham", name:"💖 Tim Đập Chậm" },
+			{ key:"Thap_Tim", name:"💖 Thấp khớp cấp – Thấp tim" },
+			{ key:"Suy_Tim", name:"🥶 Suy Tim" },
+			{ key:"Thieu_Mau_Co_Tim", name:"💖 Thiếu Máu Cơ Tim" }
+		  ]},
+		   { group:"🍵 Tiêu Hóa & 🍝 Nội Tiết", diseases:[
+			{ key:"TieuHoaKem", name:"🍵 Tiêu Hóa Kém " },
+			{ key:"Vi_khi_nghich", name:"🌿 Vị Khí Nghịch " },
+			{ key:"traonguocdaday", name:"🌿 Trào ngược dạ dày " },
+			{ key:"daudaday", name:"🧅 Đau Dạ Dày Co Thắt" },
+			{ key:"HepMonVi", name:"🧅 Hẹp Môn Vị" },
+			{ key:"Polyp_da_day", name:"🧅 Polyp Ung Thư Dạ Dày" },
+			{ key:"Hoi_chung_ruot_kich_thich", name:"🧅 Hội Chứng Ruột Kích Thích" },
+			{ key:"Viem_Dai_Trang", name:"😔 Viêm Đại Tràng" },
+			{ key:"gannhiemmo", name:"🍃 Gan Nhiễm Mỡ" },
+			{ key:"MoMauCao", name:"🍃 Mỡ Máu Cao" },
+			{ key:"Roi_loan_lipid_mau", name:"🌿 Rối Loạn Lipid Máu" },
+			{ key:"ViemGan", name:"🌿 Viêm Gan" },
+			{ key:"XoGanCoTruong", name:"🍃 Xơ Gan Cổ Trướng" },
+		    { key:"Mengancao", name:"🍃 Men Gan Cao" },
+			{ key:"Polyp_tui_mat", name:"🍃 Polyp Túi Mật" },
+			{ key:"Hoang_Dan", name:"🦠 Viêm Gan Siêu Vi" },
+			{ key:"ChuaViemGanTrungDoc", name:"🧫 Viêm Gan Trúng Độc" },
+			{ key:"DauBung", name:"🍝 Đau Bụng" }
+		  ]},
+		  { group:"💦Phụ Khoa & 🚻 Tiết Niệu", diseases:[
+			{ key:"TienManKinh", name:"🔥 Tiền Mãn Kinh" },
+			{ key:"HoiChungManKinh", name:"🔥 Hội Chứng Mãn Kinh" },
+			{ key:"SoiThan", name:"🌓 Sỏi Thận" },
+			{ key:"SuyThan", name:"💦 Suy Thận" },
+			{ key:"Viem_be_than_cap", name:"💦 Viêm Bể Thận Cấp" },
+			{ key:"SoiTietNieu", name:"🌑 Sỏi Tiết Niệu" },
+			{ key:"DaiThaoDuong", name:"🍝 Đái Tháo Đường" },
+			{ key:"ViemBangQuang", name:"🌞 Viêm Bàng Quang" },
+			{ key:"Chung_Doi_Ha", name:"🦠 Viêm Tử Cung" },
+			{ key:"Kinh_Be", name:"💦 Kinh Bế | Vô Kinh" },
+			{ key:"Roi_loan_KN_ko_dung_ky", name:"💫 Rối Loạn Kinh Nguyệt" },
+			{ key:"Kinh_nguyet_Sau_ky", name:"💦 Kinh Nguyệt Muộn" },
+			{ key:"Kinh_nguyet_Truoc_ky", name:"🔥 Kinh Nguyệt Sớm Trước Kỳ" },
+			{ key:"Kinh_nguyet_It", name:"💦 Kinh Nguyệt ÍT" },
+		 	{ key:"Kinh_nguyet_tro_lai", name:"💦 Kinh Nguyệt Trở Lại" },
+			{ key:"Di_Tinh", name:"💦 Di Tinh | Mộng Di - Hoạt Di" }
+		  ]},
+		
+		  { group:"🩺 Ngoại Khoa & Da Liễu", diseases:[
+			{ key:"Viem_tac_dong_mach", name:"🌫️ Viêm Tắc Động Mạch" },
+			{ key:"BenhSoi", name:"🤔 Bệnh Sởi" },
+			{ key:"MunTrungCaNamDa", name:"🌱 Mụn Trứng Cá, Nám Da" },
+			{ key:"TranThuong_BamTim", name:"💖 Trấn Thương Bầm Tím" },
+		  	{ key:"XamDa", name:"🍵 Xạm Da" },
+			{ key:"Bong", name:"🍂 Bỏng" },
+			{ key:"Cham_da", name:"🧩 Chàm"}
+		  ]}, 
+		  { group:"🧸 Nhi Khoa (Pediatrics)", diseases:[
+			{ key:"BenhTieuHoa_treem", name:"🌼 Bệnh Tiêu Hóa ở Trẻ Em" },
+			{ key:"Dai_dam", name:"💦 Đái Dầm" }
+		  ]},
+		  { group:"🕸️ Ung Thư & 🗿 U Bướu", diseases:[
+			{ key:"ungthumau", name:"🩸 Ung Thư Máu" },
+			{ key:"UngThutuyengiaptrang", name:"🍬 Ung Thư Tuyến Giáp" },
+			{ key:"UngThuThucQuan", name:"🍬 Ung Thư Thực Quản" },
+			{ key:"UngThuDaDay", name:"🧅 Ung Thư Dạ Dày" },
+			{ key:"UngThuDaiTrang", name:"🧅 Ung Thư Đại Tràng" },
+			{ key:"UngThuGan", name:"🍃 Ung Thư Gan" },
+			{ key:"UngThuBangQuang", name:"💦 Ung Thư Bàng Quang" },
+			{ key:"UngThu", name:"🌸 Ung Thư Khác" },
+			{ key:"Uvu", name:"🌸 U Vú" },
+			{ key:"Uxotienliettuyen", name:"🌸 U Xơ Tiền Liệt Tuyến" },
+			{ key:"Uxo_Tu_Cung", name:"🌸 U Xơ Tử Cung" },
+			{ key:"UngThuhauMonTrucTrang", name:"🌸 Ung Thư Hậu Môn" },
+			{ key:"UngThuTrucTrang", name:"🌸 Ung Thư Trực Tràng" },
+			{ key:"Uxo_Vu", name:"🌱 U Xơ Vú" },
+			{ key:"UBuou", name:"🌱 U Bướu" }
+		  ]},
+		    { group:"🌱 Nội Khoa & ⚕️ Khác", diseases:[
+			{ key:"Sotxuathuyet", name:"🌿 Sốt Xuất Huyết" },
+			{ key:"DauKhapMinh", name:"🌱 Đau Khắp Mình" },
+			{ key:"SayNang_TrungThu", name:"🌞 Say Nắng Trúng Thử" },
+			{ key:"Toc_gay_rung", name:"🌞 Rụng Tóc - Ban Thốc" },
+			{ key:"Tang_tieu_cau_vo_can", name:"🩸 Tăng tiểu cầu Vô Căn" },
+			{ key:"Tan_mau_bam_sinh_THALASEMMIA", name:"💧 Tan Máu Bẩm Sinh Thalasemmia" }
+		  ]},
+		    { group:"☯️ YHCT & ✨ Chứng Trạng", diseases:[
+			{ key:"KhaiThau_Ho", name:"🌬️ Khái Thấu - Ho" },
+			{ key:"NUY_chung", name:"🌫️ Nuy Tý - Bại Liệt" },
+			{ key:"Chung_Tieu_khat", name:"🔥 Tiêu Khát" },
+			{ key:"Chung_Phe_Ung", name:"🦠 Phế Ung - Áp Xe Phổi" },
+			{ key:"Huyen_Vung", name:"🔥 Huyễn Vựng - HA Cao" },
+			{ key:"Huyen_vung_HuyetApThap", name:"🤍 Huyễn Vựng - HA Thấp" },
+			{ key:"Huyen_vung_Chong_mat", name:"💫 Huyễn Vựng - Chóng Mặt" },
+			{ key:"Con_Dau_That_Nguc", name:"🤍 Cơn Đau Thắt Ngực" },
+			{ key:"Hung_Ty", name:"💖 Hung Tý | Cơn Đau Tim" },
+			{ key:"Vi_Quan_Thong", name:"🧅 Vị Quản Thống | Đau Dạ Dày" },
+			{ key:"Vi_Quan_Thong_viem_da_day_man", name:"🦠 Vị Quản Thống | Viêm Dạ Dày Mạn" },
+			{ key:"Vi_Ha_Thuy", name:"💖 Vị Hạ Thùy | Sa Dạ Dày" },
+			{ key:"Loet_da_day_ta_trang", name:"💖 Vị Thập Nhị Chỉ Tràng Hội Thương " },
+			{ key:"Hoang_Dan", name:"🦠 Hoàng Đản - Viêm Gan Siêu Vi" },
+			{ key:"That_Mien", name:"💤 Thất Miên - Mất Ngủ" },
+			{ key:"Chung_ty", name:"🦴 Chứng Tý - Đau Nhức Xương Khớp" },
+			{ key:"Chung_NHi_MInh", name:"👂 Nhĩ Minh - Tai Ù" },
+			{ key:"Chung_Doi_Ha", name:"🌀 Đái Hạ - Viêm Cổ Tử Cung" },	
+			{ key:"Co_Chuong_Xo_Gan", name:"🌿 Cổ Chướng - Xơ Gan" }	,
+			{ key:"Chung_hu_lao", name:"🌬 Hư Lao - Lao Phổi" },
+			{ key:"Chung_ha_tri", name:"🌸 Hạ Trĩ - Nội | Ngoại" },	
+			{ key:"Chung_Mai_Hach_Khi", name:"🌸 Mai Hạch Khí" },	
+			{ key:"Chung_Truong_Ung", name:"🌫️ Chứng Trường Ung" },
+			{ key:"Chung_Tich_Tu", name:"🌑 Chứng Tích Tụ" },
+			{ key:"Nhiet_Lam", name:"🦠 Nhiệt Lâm | Viêm Bể Thận Cấp" },
+			{ key:"Duong_Thuy", name:"🦠  Dương Thủy | Cầu Thận Viêm Cấp" },
+			{ key:"Phu_Thung", name:"🦠 Phù Thũng | Cầu Thận Viêm Mạn" },
+			{ key:"Thach_lam", name:"🌑 Thạch Lâm | Cơn đau quặn thận" },
+			{ key:"Lam_Chung", name:"💦 Viêm Bàng Quang" },
+			{ key:"Chung_bang_lau", name:"🌸 Băng Lậu | Xuất Huyết Tử Cung" },
+			{ key:"Chung_LongBe", name:"💦 Chứng Long Bế | Bí Tiểu" },
+			{ key:"Cao_chi_huyet_chung", name:"🩸 Cholesterol Máu Cao" },
+			{ key:"Chung_Anh", name:"🍬 Chứng Anh | Bướu Cổ" },
+			{ key:"Lac_Cham", name:"🤔 Lạc Chẩm | Cổ Vẹo" },
+			{ key:"CanDuongHu", name:"🌿 Can Dương Hư" },
+			{ key:"CanAmHu", name:"🍃 Can Âm Hư" },
+			{ key:"Dien", name:"🌞 Điên - Rối Loạn Tâm Thần" },
+			{ key:"Cuong_Dien", name:"🧅 Cuồng | Hung Cuồng" },
+			{ key:"Dong_Kinh", name:"🌞 Giản Chứng | Động Kinh" },
+			{ key:"Bung_Dau", name:"🧅 Bụng Đau" }
+		  ]}  
+		];
+// lưu ý dấu , chỗ này -> bệnh
+
+    // ====== TÌM KIẾM GẦN ĐÚNG TOÀN VĂN ======
+    function norm(s){ return (s||'').toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g,''); }
+    function levenshtein(a, b){
+      a = norm(a); b = norm(b);
+      const m = a.length, n = b.length;
+      if(n===0) return m; if(m===0) return n;
+      const dp = new Array(n+1).fill(0);
+      for(let j=0;j<=n;j++) dp[j]=j;
+      for(let i=1;i<=m;i++){
+        let prev = dp[0]; dp[0]=i;
+        for(let j=1;j<=n;j++){
+          const tmp = dp[j];
+          dp[j] = Math.min(
+            dp[j] + 1,
+            dp[j-1] + 1,
+            prev + (a[i-1]===b[j-1] ? 0 : 1)
+          );
+          prev = tmp;
+        }
+      }
+      return dp[n];
+    }
+    function fuzzyIncludes(text, query, tolerance=2){
+      const A = norm(text); const B = norm(query).trim();
+      if(!B) return true;
+      if(A.includes(B)) return true;
+      if(B.length<3) return false;
+      const len = B.length;
+      for(let i=0;i<=A.length-len;i++){
+        const seg = A.substr(i, len);
+        if(levenshtein(seg, B) <= tolerance) return true;
+      }
+      return false;
+    }
+
+    function diseaseName(key){
+      for(const g of catalog){
+        for(const d of g.diseases){
+          if(d.key===key) return d.name;
+        }
+      }
+      return key;
+    }
+
+    function allSubtypes(){
+      const arr=[];
+      for(const [dKey, list] of Object.entries(diseaseData)){
+        list.forEach(item=> arr.push({ diseaseKey:dKey, diseaseName: diseaseName(dKey), ...item }));
+      }
+      return arr;
+    }
+
+    // ====== RENDER TREE ======
+    const treeEl = document.getElementById('tree');
+    function renderTree(){
+      treeEl.innerHTML='';
+      catalog.forEach((group, gi)=>{
+		
+		      // ====== TÍNH TỔNG SỐ THỂ BỆNH TOÀN HỆ THỐNG ======
+      let totalSubtypes = 0;
+      for (const key in diseaseData) {
+        totalSubtypes += diseaseData[key].length;
+      }
+
+      // Nếu chưa có phần hiển thị tổng, thêm vào đầu sidebar
+      let totalDiv = document.getElementById('totalSubtypes');
+      if (!totalDiv) {
+        totalDiv = document.createElement('div');
+        totalDiv.id = 'totalSubtypes';
+        totalDiv.style.padding = '8px 0';
+        totalDiv.style.fontSize = '14px';
+        totalDiv.style.fontWeight = '600';
+        totalDiv.innerHTML = `📊 Tổng số thể bệnh YHCT: <b>${totalSubtypes}</b>`;
+        treeEl.parentElement.insertBefore(totalDiv, treeEl);
+      }
+
+		
+        const folder = document.createElement('div');
+        folder.className='folder node';
+        folder.setAttribute('aria-expanded','false');
+        folder.innerHTML = `<div class="label"><span class="caret">▶</span><span>${group.group}</span></div>`;
+        const children = document.createElement('div');
+        children.className='children';
+        
+		group.diseases.forEach(d=>{
+  const a = document.createElement('a');
+  a.className = 'child';
+  const subCount = diseaseData[d.key] ? diseaseData[d.key].length : 0;
+  a.textContent = `${d.name} (${subCount} thể)`;
+  a.href = 'javascript:void(0)';
+  a.addEventListener('click', ()=> showDisease(d.key, d.name));
+  children.appendChild(a);
+});
+
+        folder.addEventListener('click', (e)=>{
+          // tránh toggle khi click vào con
+          if(e.target.closest('.child')) return;
+          const isOpen = children.classList.toggle('open');
+          folder.setAttribute('aria-expanded', isOpen ? 'true':'false');
+        });
+        treeEl.appendChild(folder);
+        treeEl.appendChild(children);
+      });
+    }
+    renderTree();
+	
+	
+
+    // ====== UI CHÍNH ======
+    const mainIntro = document.getElementById('mainIntro');
+    const diseasePanel = document.getElementById('diseasePanel');
+    const subtypesEl = document.getElementById('subtypes');
+    const diseaseTitle = document.getElementById('diseaseTitle');
+    const tooltip = document.getElementById('tooltip');
+	function hideTooltip() {
+	tooltip.classList.remove("show");
+	tooltip.style.opacity = "0";
+	}
+
+    const modal = document.getElementById('modal');
+    const modalCard = document.getElementById('modalCard');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalBody = document.getElementById('modalBody');
+    const modalClose = document.getElementById('modalClose');
+    const printThis = document.getElementById('printThis');
+    const pdfThis = document.getElementById('pdfThis');
+
+    function showDisease(key, name){
+      const list = diseaseData[key]||[];
+      mainIntro.style.display='none';
+      diseasePanel.style.display='block';
+      const count = list.length;
+      diseaseTitle.textContent = `${name} — ${count} thể bệnh`;
+      renderSubtypes(list, key);
+      // cuộn lên đầu khu nội dung
+      diseasePanel.scrollIntoView({behavior:'smooth', block:'start'});
+    }
+
+    function truncate(str, n=120){
+      if(!str) return '';
+      return str.length>n ? str.slice(0,n).trim() + '…' : str;
+    }
+  function renderSubtypes(list, dKey = null) {
+  subtypesEl.innerHTML = '';
+
+  list.forEach(item => {
+    const div = document.createElement('div');
+    div.className = 'card-type';
+    const diseaseKey = item.diseaseKey || dKey;
+    const diseaseLabel = diseaseName(diseaseKey);
+
+    // Gắn name bệnh có thể click được
+    const chipClickable = diseaseKey
+      ? `<span class="chip clickable-disease" data-key="${diseaseKey}" style="cursor:pointer;">${diseaseLabel}</span>`
+      : '';
+
+    div.innerHTML = `
+      <h4>${item.title} ${chipClickable} </h4>
+     <p class="small">${truncate(annotateSymptoms(item), 200)}</p>
+      <label class="therapy-label" style="cursor:pointer;display:block;margin-top:6px">
+        <input type="radio" name="subtype" hidden value="${item.therapy}" />
+        <span>Xem <b>Pháp trị</b></span>
+      </label>
+	<div class="btn-tooltip-wrap">
+	<button class="secondary">Xem bài thuốc</button>
+	<div class="btn-tooltip">${item.recipeTitle || item.title || 'Không rõ'}</div>
+	</div>
+    `;
+
+    // Tooltip
+    const lbl = div.querySelector('.therapy-label');
+    const radio = div.querySelector('input');
+    lbl.addEventListener('mouseenter', e => showTooltip(e, radio.value));
+    lbl.addEventListener('mousemove', e => showTooltip(e, radio.value));
+    lbl.addEventListener('mouseleave', hideTooltip);
+    lbl.addEventListener('click', e => {
+      showTooltip(e, radio.value, true);
+      setTimeout(hideTooltip, 3000);
+    });
+
+    // Khi click vào chip (tên bệnh) → hiển thị toàn bộ thể bệnh của key
+    const chip = div.querySelector('.clickable-disease');
+    if (chip) {
+      chip.addEventListener('click', () => {
+        const key = chip.dataset.key;
+        if (diseaseData[key]) {
+          diseaseTitle.textContent = `${diseaseName(key)} — ${diseaseData[key].length} thể bệnh`;
+          renderSubtypes(diseaseData[key], key);
+        } else {
+          alert('⚠️ Chưa có dữ liệu cho bệnh này.');
+        }
+      });
+    }
+
+    // Khi click vào nút xem bài thuốc
+    const btn = div.querySelector('button');
+    btn.addEventListener('click', () => openRecipe(item));
+
+    subtypesEl.appendChild(div);
+  });
+}
+
+function showTooltip(e, text, forceBelow=false){
+  if(!tooltip) return;
+
+  tooltip.textContent = text;
+  tooltip.style.display = "block";
+  tooltip.style.opacity = "1";
+
+  let x = e.clientX + 12;
+  let y = e.clientY - 28;
+  if(forceBelow || y < 60){ y = e.clientY + 18; }
+
+  tooltip.style.left = x + "px";
+  tooltip.style.top  = y + "px";
+
+  tooltip.classList.add("show");
+}
+
+function hideTooltip(){
+  if(!tooltip) return;
+  tooltip.classList.remove("show");
+  tooltip.style.opacity = "0";
+  tooltip.style.display = "none";   // ✅ Quan trọng: Cho phép hover lại mượt mà
+}
+
+    function openRecipe(item){
+      const recipeLines = (item.recipe||'').split(/\n+/).map(s=>s.trim()).filter(Boolean);
+      const listHtml = recipeLines.map(s=>`<li>${s}</li>`).join('');
+	// Tiêu đề		modalTitle.textContent = detectIcons(item) + " " + item.title;
+					modalTitle.textContent = item.title;
+
+      modalBody.innerHTML = `
+        <p><b>Thể bệnh:</b> ${item.title}</p>
+        <p><b>Triệu chứng:</b> ${item.symptom}</p>
+        <p><b>Pháp trị:</b> ${item.therapy}</p>
+        <p><b>Tên bài thuốc:</b> ${item.recipeTitle||'—'}</p>
+        <p><b>Công thức:</b></p>
+        <ul class="list">${listHtml || '<li>Đang cập nhật</li>'}</ul>
+        <p><b>Lưu ý:</b> ${item.note || '—'}</p>
+      `;
+      modal.classList.add('open');
+      printThis.onclick = ()=> printElement(modalCard);
+      pdfThis.onclick = ()=> savePdfElement(modalCard, `Bai-thuoc-${slugify(item.title)}.pdf`);
+	  document.getElementById("modalTags").textContent = detectIcons(item);
+    }
+
+   function printElement(el){
+	  const html = `
+	  <html>
+	  <head>
+		<title>Lãn Ông Bí Pháp - lanongbiphap.com</title>
+		<meta charset="utf-8">
+		<style>
+		  body{font-family:Inter,Arial,sans-serif;padding:16px;line-height:1.6;}
+		  h3{margin-bottom:8px;}
+		  ul{padding-left:18px;}
+		  li{margin-bottom:4px;}
+		</style>
+	  </head>
+	  <body>${el.innerHTML}</body>
+	  </html>`;
+
+	  const w = window.open('', '_blank');
+	  w.document.write(html);
+	  w.document.close();
+	  w.focus();
+	  w.print();
+	}
+
+
+    function savePdfElement(el, filename='Bai-thuoc.pdf'){
+	const prevMaxHeight = el.style.maxHeight;
+	const prevOverflow  = el.style.overflow;
+
+	// Mở rộng modal để html2pdf đọc đủ nội dung
+	el.style.maxHeight = 'none';
+	el.style.overflow = 'visible';
+
+	const opt = {
+	margin: 10,
+	filename,
+	image: { type: 'jpeg', quality: 0.98 },
+	html2canvas: { 
+	  scale: 2,
+	  useCORS: true
+	},
+	jsPDF: { unit: 'mm', format: 'a4', orientation:'portrait' },
+	pagebreak: { mode: ['avoid-all','css','legacy'] }
+	};
+
+	html2pdf().from(el).set(opt).save().then(()=>{
+	// Khôi phục modal
+	el.style.maxHeight = prevMaxHeight;
+	el.style.overflow = prevOverflow;
+	});
+	}
+
+
+    modalClose.addEventListener('click',()=> modal.classList.remove('open'));
+    document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') modal.classList.remove('open'); });
+    modal.addEventListener('click', (e)=>{ if(e.target===modal) modal.classList.remove('open'); });
+
+    // Lọc nhanh trong danh sách đang xem
+    document.getElementById('filterSubtype').addEventListener('input',function(){
+      const q = this.value.toLowerCase();
+      const list = Array.from(subtypesEl.querySelectorAll('.card-type'));
+      list.forEach(card=>{
+        const text=card.innerText.toLowerCase();
+        card.style.display = text.includes(q)?'block':'none';
+      });
+    });
+
+</script>
+<script>
+// gentle right-click prevention with toast
+(function(){
+  function showRcToast() {
+    const t = document.getElementById('rcToast');
+    if (!t) return;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 1800);
+  }
+
+  document.addEventListener('contextmenu', function(e) {
+    // Cho phép click phải trong input, textarea, hoặc vùng có thể chỉnh sửa
+    const tag = e.target && e.target.tagName && e.target.tagName.toLowerCase();
+    if (tag === 'input' || tag === 'textarea' || e.target.isContentEditable) return;
+
+    // Chặn menu chuột phải
+    e.preventDefault();
+    showRcToast();
+  });
+})();
+</script>
+
+<!-- ✅ FAST SEARCH: Web Worker + Fuse.js (giữ nguyên UI, không khóa giao diện) -->
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
+
+<script>
+(function(){
+  // 0) Clone input để gỡ toàn bộ listener cũ (tránh xung đột logic cũ)
+  function replaceWithClone(el){
+    if(!el) return null;
+    const c = el.cloneNode(true);
+    el.parentNode.replaceChild(c, el);
+    return c;
+  }
+  const inputSide0 = document.getElementById('globalSearch');   // đã có trong v8
+  const inputTop0  = document.getElementById('globalSearchTop'); // nếu có
+  const inputSide  = replaceWithClone(inputSide0) || inputSide0;
+  const inputTop   = replaceWithClone(inputTop0)  || inputTop0;
+
+  // 1) Loader nhỏ ở góc để báo trạng thái
+  const loader = document.createElement('div');
+  loader.id = 'fastLoader';
+  loader.style.cssText = 'position:fixed;bottom:12px;right:12px;background:#0f58d6;color:#fff;padding:8px 14px;border-radius:8px;font-size:13px;z-index:9999;display:none;';
+  loader.textContent = 'Đang khởi tạo tìm kiếm...';
+  document.body.appendChild(loader);
+  function hideFastLoader() {
+  const lf = document.getElementById("fastLoader");
+  if (lf) lf.style.display = "none";
+	}
+  // 2) Worker code: index + search trong luồng riêng
+  const workerCode = () => {
+    let fuse;
+    self.onmessage = (e) => {
+      const { type, payload, q } = e.data || {};
+      if(type === 'init'){
+        importScripts('https://cdn.jsdelivr.net/npm/fuse.js@6.6.2');
+        fuse = new Fuse(payload || [], {
+          keys: ['title','symptom','therapy','recipeTitle','recipe','note'],
+          threshold: 0.35,
+          minMatchCharLength: 2,
+          ignoreLocation: true,
+          includeScore: false
+        });
+        self.postMessage({ type:'ready' });
+      } else if(type === 'search'){
+        if(!fuse || !q || !q.trim()){ self.postMessage({type:'results', results:[]}); return; }
+        // Giới hạn số kết quả render để tránh DOM quá lớn
+        const results = fuse.search(q).slice(0, 120).map(r => r.item);
+        self.postMessage({ type:'results', results });
+      }
+    };
+  };
+  const blob  = new Blob(['('+workerCode.toString()+')()'], {type:'application/javascript'});
+  const worker = new Worker(URL.createObjectURL(blob));
+
+  // 3) Gom dữ liệu từ diseaseData / allSubtypes
+  function buildData(){
+    try {
+      if(typeof window.allSubtypes === 'function'){
+        const list = window.allSubtypes();
+        if(Array.isArray(list) && list.length) return list;
+      }
+    } catch(_) {}
+    const arr = [];
+    if (typeof window.diseaseData === 'object'){
+      for (const [key, list] of Object.entries(window.diseaseData)) {
+        if (Array.isArray(list)) list.forEach(it => arr.push({ diseaseKey:key, ...it }));
+      }
+    }
+    return arr;
+  }
+  const data = buildData();
+  loader.style.display = 'block';
+  worker.postMessage({ type:'init', payload: data });
+
+  // 4) Nhận kết quả, render theo UI gốc
+  let ready = false;
+  worker.onmessage = (e) => {
+    const { type, results } = e.data || {};
+    if(type === 'ready'){
+      ready = true;
+      loader.textContent = 'Đã sẵn sàng tìm kiếm 🔍';
+      setTimeout(()=> loader.style.display='none', 1000);
+      return;
+    }
+    if(type === 'results'){
+      loader.style.display = 'none';
+      const mainIntro    = document.getElementById('mainIntro');     // đã có
+      const diseasePanel = document.getElementById('diseasePanel');  // đã có
+      if(mainIntro && diseasePanel){
+        mainIntro.style.display    = results.length ? 'none'  : 'block';
+        diseasePanel.style.display = results.length ? 'block' : 'none';
+      }
+      const title = document.getElementById('diseaseTitle');
+      if(title) title.textContent = results.length ? `Kết quả tìm kiếm (${results.length})` : '';
+
+      if (typeof window.renderSubtypes === 'function' && document.getElementById('subtypes')){
+        window.renderSubtypes(results, null);
+      } else {
+        // fallback tạm nếu trang thiếu hàm render
+        let box = document.getElementById('fastResults');
+        if(!box){
+          box = document.createElement('div');
+          box.id = 'fastResults';
+          box.style.cssText = 'background:#fff;border:1px solid #eef4ff;box-shadow:0 6px 16px rgba(0,0,0,.06);padding:12px;border-radius:10px;margin:10px 0;';
+          (document.querySelector('.content')||document.body).prepend(box);
+        }
+        box.innerHTML = results.slice(0,50).map(it => `
+          <div style="padding:8px 0;border-bottom:1px solid #f1f4ff">
+            <b>${it.title||''}</b>
+            <div style="color:#556;margin-top:6px">${(it.symptom||'').slice(0,160)}</div>
+          </div>`).join('') || '<i>Không tìm thấy.</i>';
+      }
+    }
+  };
+
+  // 5) Debounce & gắn event
+  function debounce(fn, t){ let x; return (...a)=>{ clearTimeout(x); x=setTimeout(()=>fn.apply(null,a), t); }; }
+  const doSearch = debounce((q)=>{
+    if(!ready) return;
+    if(!q || !q.trim()){
+      // clear UI → về trang chào
+      const mainIntro    = document.getElementById('mainIntro');
+      const diseasePanel = document.getElementById('diseasePanel');
+      if(mainIntro && diseasePanel){ mainIntro.style.display='block'; diseasePanel.style.display='none'; }
+      return;
+    }
+    loader.style.display='block'; loader.textContent='Đang tìm...';
+    worker.postMessage({ type:'search', q:q });
+  }, 300);
+
+  [inputSide, inputTop].forEach(inp=>{
+    if(!inp) return;
+    inp.addEventListener('input', e => doSearch(e.target.value || ''));
+    inp.addEventListener('keydown', e => { if(e.key==='Enter'){ e.preventDefault(); doSearch(e.target.value||''); }});
+  });
+})();
+</script>
+<script>
+(function(){
+  document.addEventListener("mouseover", function(e){
+    const wrap = e.target.closest(".btn-tooltip-wrap");
+    if(!wrap) return;
+    const tooltip = wrap.querySelector(".btn-tooltip");
+    if(!tooltip) return;
+
+    // chỉ hiện khi hover, không khi click
+    if(!wrap.classList.contains("tooltip-disabled")) {
+      tooltip.classList.add("show");
+      clearTimeout(tooltip._hideTimer);
+      tooltip._hideTimer = setTimeout(() => {
+        tooltip.classList.remove("show");
+      }, 3500);
+    }
+  });
+
+  document.addEventListener("mouseout", function(e){
+    const wrap = e.target.closest(".btn-tooltip-wrap");
+    if(!wrap) return;
+    const tooltip = wrap.querySelector(".btn-tooltip");
+    if(tooltip){
+      tooltip.classList.remove("show");
+    }
+  });
+
+  // ✅ Khi click → tắt tooltip và KHÔNG cho tooltip hiện lại nữa
+  document.addEventListener("click", function(e){
+    const wrap = e.target.closest(".btn-tooltip-wrap");
+    if(!wrap) return;
+    const tooltip = wrap.querySelector(".btn-tooltip");
+    if(!tooltip) return;
+
+    tooltip.classList.remove("show");
+    wrap.classList.add("tooltip-disabled"); // khóa tooltip không bật lại
+  });
+})();
+</script>
+<script>
+// === HIỂN THỊ KẾT QUẢ BÁT CƯƠNG ===
+function renderDiagnosisUI(items){
+  const panel = document.getElementById('dxPanel');
+  const chips = document.getElementById('dxBaGang');
+  const chat  = document.getElementById('dxChat');
+  const chatC = document.getElementById('dxChatContent');
+
+  if (!panel || !chips || !chat || !chatC) return;
+
+  if (!items || !items.length){
+    panel.style.display = 'none';
+    chat.style.display  = 'none';
+    chips.innerHTML     = '';
+    chatC.innerHTML     = '';
+    return;
+  }
+
+  panel.style.display = 'block';
+  chat.style.display  = 'block';
+
+  chips.innerHTML = items.map(it => {
+    const ds = window.DIAGNOSE_DATA.find(d => d.label === it.label);
+    const tips = ds && ds.terms ? ds.terms.join(", ") : "";
+    return `
+      <span class="chip dx-chip" data-tip="${tips}">
+        ${it.icon} ${it.label}
+      </span>
+    `;
+  }).join('');
+
+  const top = items[0];
+  chatC.innerHTML =
+    `<b>${top.icon} ${top.label}</b> (điểm khớp: ${top.score})<br>
+     <small>Gợi ý: Đối chiếu triệu chứng để chọn thể bệnh phù hợp.</small>`;
+}
+
+// Tooltip cho chip + auto fit mobile
+document.addEventListener("mousemove", function(e){
+  const chip = e.target.closest(".dx-chip");
+  let t = document.getElementById("dxTip");
+
+  if(!t){
+    t = document.createElement("div");
+    t.id = "dxTip";
+    t.style.cssText = `
+      position:fixed; z-index:99999; background:#0b1220; color:#fff;
+      padding:8px 10px; border-radius:8px; font-size:14px;
+      box-shadow:0 8px 24px rgba(0,0,0,0.25);
+      max-width:280px; display:none; line-height:1.5;
+    `;
+    document.body.appendChild(t);
+  }
+
+  if(chip){
+    t.innerHTML = chip.dataset.tip || '';
+    t.style.display = "block";
+    t.style.left = (e.clientX + 14) + "px";
+    t.style.top  = (e.clientY + 14) + "px";
+  } else {
+    t.style.display = "none";
+  }
+});
+
+
+// === GẮN SỰ KIỆN SAU KHI INPUT BỊ CLONE BỞI FAST SEARCH ===
+(function restoreDxBinding(){
+  function bind(){
+    const input = document.getElementById('globalSearch');
+    if(!input || typeof diagnoseFromKeywords !== 'function') return;
+    input.addEventListener('input', e => {
+      const q = e.target.value.trim();
+      const r = diagnoseFromKeywords(q);
+      renderDiagnosisUI(r);
+    });
+  }
+  setTimeout(bind, 600); // đợi Fast Search clone xong input
+})();
+</script>
+<script>
+(function(){
+  const version = '2025-11-NEW-25-14h50'; // đổi giá trị này mỗi lần update
+  const saved = localStorage.getIte('app_version');
+  if(saved !== version){
+    localStorage.setItem('app_version', version);
+    console.log("🔥 Phiên bản mới → tự động reload cache");
+    location.reload(true);
+  }
+})();
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then(regs => {
+    regs.forEach(reg => reg.unregister());
+  });
+}
+</script>
+
+<script>
+(function(){
+  const input = document.getElementById('globalSearch');
+  const box   = document.getElementById('dxKeywordSuggest');
+  if(!input || !box || !window.DIAGNOSE_DATA) return;
+
+  let selected = [];
+  let currentGroup = null;
+
+  const norm = s => (s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+
+  function findGroup(term){
+    const t = norm(term);
+    return DIAGNOSE_DATA.find(g => (g.terms||[]).some(x => norm(x).includes(t)));
+  }
+
+  function suggestPrimary(q){
+    const out = new Set();
+    q = norm(q);
+    DIAGNOSE_DATA.forEach(g => g.terms.forEach(t => { if(norm(t).includes(q)) out.add(t); }));
+    return Array.from(out).slice(0, 20);
+  }
+
+  function suggestNext(){
+    let out = currentGroup 
+        ? currentGroup.terms.filter(t => !selected.includes(t))
+        : [];
+
+    const others = DIAGNOSE_DATA.filter(g => g !== currentGroup);
+    const rand = others[Math.floor(Math.random()*others.length)];
+    out = out.concat(rand.terms.filter(t => !selected.includes(t)));
+
+    return out.slice(0, 20);
+  }
+
+  function render(list){
+    if(!list.length){ box.innerHTML=""; return; }
+    box.innerHTML = list.map(t => `<span class="chip dx-kw" data-k="${t}">${t}</span>`).join("");
+  }
+
+ 
+// ✅ CLICK CHỌN TỪ KHÓA
+box.addEventListener("click", e=>{
+  const el = e.target.closest(".dx-kw");
+  if(!el) return;
+  const term = el.dataset.k;
+
+  if(!selected.includes(term)) selected.push(term);
+  currentGroup = findGroup(term) || currentGroup;
+
+  input.value = selected.join(", ") + ", ";
+
+  // ✅ Gọi tìm kiếm ngay lập tức
+  input.dispatchEvent(new Event("input", { bubbles:true }));
+
+  render(suggestNext());
+
+  // ✅ GIỮ CON TRỎ CHO LẦN GÕ TIẾP
+  input.focus();
+});
+
+// ✅ BACKSPACE/DELETE thông minh
+input.addEventListener("keydown", e=>{
+  if(e.key !== "Backspace" && e.key !== "Delete") return;
+
+  const raw = input.value;
+
+  const selStart = input.selectionStart;
+  const selEnd   = input.selectionEnd;
+  const isSelecting = selStart !== selEnd;
+
+  // 1) ✅ Nếu bôi đen toàn bộ → Reset tất cả
+  if(selStart === 0 && selEnd === raw.length){
+    e.preventDefault();
+    selected = [];
+    currentGroup = null;
+    input.value = "";
+    box.innerHTML = "";
+    return;
+  }
+
+  // 2) ✅ Nếu bôi đen một đoạn → xóa đúng cụm đó
+  if(isSelecting){
+    e.preventDefault();
+
+    // Tách input thành các cụm từ
+    const parts = raw.split(",").map(s=>s.trim()).filter(Boolean);
+
+    // Tìm cụm nào chứa đoạn bôi đen
+    const before = raw.slice(0, selStart);
+    const index = before.split(",").filter(s=>s.trim()).length - 1;
+
+    if(index >= 0){
+      parts.splice(index, 1);   // xóa cụm đó
+      selected.splice(index, 1); // xóa trong mảng logic
+    }
+
+    // Cập nhật lại nhóm
+    currentGroup = selected.length
+      ? findGroup(selected[selected.length-1])
+      : null;
+
+    // Cập nhật lại giao diện input
+    input.value = selected.length ? selected.join(", ") + ", " : "";
+    input.dispatchEvent(new Event("input", { bubbles:true }));
+
+    render(selected.length ? suggestNext() : []);
+    return;
+  }
+
+  // 3) ✅ Nếu không bôi đen → xử lý xóa cụm cuối
+  if(raw.endsWith(", ") || raw.endsWith(",")){
+    e.preventDefault();
+    selected.pop();
+    currentGroup = selected.length ? findGroup(selected[selected.length-1]) : null;
+    input.value = selected.length ? selected.join(", ") + ", " : "";
+    input.dispatchEvent(new Event("input", { bubbles:true }));
+    render(selected.length ? suggestNext() : []);
+    return;
+  }
+
+  // 4) ✅ Nếu chỉ đang gõ → cho xóa ký tự bình thường, nhưng theo dõi
+  setTimeout(()=>{
+    const val = input.value.trim();
+    if(!val){
+      selected = [];
+      currentGroup = null;
+      box.innerHTML = "";
+      return;
+    }
+    const parts2 = val.split(",").map(s=>s.trim()).filter(Boolean);
+    const last = parts2[parts2.length - 1] || "";
+    render(suggestPrimary(last));
+  },0);
+
+});
+
+
+
+  // ✅ GÕ BÀN PHÍM (Realtime Suggest + Auto Search)
+  input.addEventListener("input", e=>{
+    const raw = input.value;
+
+    // XÓA HẾT → RESET
+    if(!raw.trim()){
+      selected = [];
+      currentGroup = null;
+      box.innerHTML = "";
+      return;
+    }
+
+    const parts = raw.split(",").map(s=>s.trim()).filter(Boolean);
+    const last = parts[parts.length - 1];
+
+    // Luôn gợi ý dựa theo từ đang gõ
+    render(suggestPrimary(last));
+
+    // ✅ Nếu người dùng gõ dấu phẩy → xác nhận từ khóa & TỰ TÌM NGAY
+    if(raw.endsWith(",")){
+      if(last && !selected.includes(last)){
+        selected.push(last);
+        currentGroup = findGroup(last) || currentGroup;
+      }
+
+      input.value = selected.join(", ") + ", ";
+
+      // ✅ Tự động chạy tìm kiếm ngay
+      input.dispatchEvent(new Event("input", { bubbles:true }));
+
+      render(suggestNext());
+    }
+  });
+
+})();
+</script>
+
+</body>
+</html>
