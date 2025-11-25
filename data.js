@@ -12908,6 +12908,17 @@ const diseaseData = {
 		"note": "Tán bột làm hoàn, ngày 8–12g. Chủ trị thể hỏa cực thịnh gây kích thích mạnh, mất ngủ, ảo giác nhẹ."
 		}
 	],
+	"Sua_code": [
+		{
+		"id": "dongkinh_bai1_can_phong_dom_troc_dinh_gian_hoan",
+		"title": "Động Kinh – Bài 1 – Thể Can Phong Đờm Trọc",
+		"symptom": "Trước cơn thấy chóng mặt, đầu đau, tức ngực, buồn bực, nghiến răng, mắt trợn, chân tay run giật, đờm dãi kéo lên, sùi bọt mép, khò khè, có lúc hôn mê. Lưỡi nhạt, rêu trắng nhớt, mạch Huyền Hoạt. Nguyên nhân: Can phong nội động + đờm trọc bốc lên che khiếu.",
+		"therapy": "Tức phong, khoát đờm, trấn tâm, khai khiếu.",
+		"recipeTitle": "Định Giản Hoàn (15 vị)",
+		"recipe": "Quân: Thiên ma 40g, Toàn yết 20g, Cương tằm 20g – bình Can tức phong mạnh. Thần: Đởm nam tinh 20g, Bán hạ 40g, Bối mẫu 40g, Thạch xương bồ 20g – hóa đờm, khai khiếu. Tá: Phục linh 40g, Phục thần 40g, Viễn chí 28g, Mạch môn 80g, Trần bì 28g, Đan sâm 80g – kiện Tỳ, lý khí, dưỡng âm, thanh nhiệt, trợ hóa đờm. Sứ: Hổ phách 20g, Thần sa 12g – trấn tâm an thần, dẫn thuốc quy kinh Tâm.",
+		"note": "Tán bột, luyện cao từ Trúc lịch + nước gừng + Cam thảo làm hoàn. Mỗi lần 8–12g, ngày 2 lần. Dùng dạng sắc khi sắp phát cơn, dùng dạng hoàn sau cơn để ổn định lâu dài."
+		}
+		],
 	};
 	
 	
